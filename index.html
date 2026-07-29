@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+--bg:#0D0D11;--bg2:#17171D;--bg3:#22222B;--bg4:#2B2B36;
+--ink:#F2F3F7;--ink-2:#B9BDC9;--ink-3:#828795;
+--line:#26262F;--line-2:#3A3A47;
+--accent:#EE5A93;--on-accent:#FFFFFF;--gold:#FFC94D;
+--grid-cols:296px minmax(0,1fr);--grid-rows:minmax(0,1fr);--gap:0px;--pad:24px;--frame:0px;--maxw-pad:34px;
+--chips-wrap:wrap;--chips-ovf:visible;--btnrow:1fr 1fr;
+--gridcols:repeat(auto-fill,minmax(150px,1fr));--rowpad:11px;--art:52px;--maxw:1560px;
+--rail-h:100%;--rail-ovf:auto;--rail-max:none;--aside-br:1px;--aside-bb:0px;--main-pad:28px;--main-pad-r:28px;--cho-disp:flex;
+color-scheme:dark;
+}
+:root[data-theme="book"]{
+--bg:#F7F7FA;--bg2:#FFFFFF;--bg3:#EEEEF3;--bg4:#E3E3EA;
+--ink:#17171D;--ink-2:#4A4D59;--ink-3:#848791;
+--line:#E6E6EC;--line-2:#D2D2DB;
+--accent:#E14B85;--on-accent:#FFFFFF;--gold:#DE9A00;
+color-scheme:light;
+}
+@media (max-width:960px){:root{--grid-cols:minmax(0,1fr);--grid-rows:minmax(0,auto) minmax(200px,1fr);--pad:16px;--btnrow:minmax(0,1.3fr) 1fr 1fr;--gridcols:repeat(auto-fill,minmax(136px,1fr));--art:48px;--rail-h:auto;--rail-ovf:auto;--rail-max:38dvh;--aside-br:0px;--aside-bb:1px;--main-pad:16px;--main-pad-r:44px;--aside-pad-r:44px;--cho-disp:flex;--maxw-pad:0px}}
+*{box-sizing:border-box}
+body{margin:0;height:100dvh;overflow:hidden;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans KR',system-ui,sans-serif;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+a{color:var(--accent)}
+a:hover{color:var(--gold)}
+button,input{font-family:inherit}
+::selection{background:var(--accent);color:var(--on-accent)}
+@keyframes stamp{0%{transform:scale(1.5);opacity:0}60%{transform:scale(.96);opacity:1}100%{transform:scale(1);opacity:1}}
+@keyframes fadeup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes flick{0%,100%{opacity:1}50%{opacity:.45}}
+[data-hidescroll]::-webkit-scrollbar{display:none}
+#list-scroll::-webkit-scrollbar{width:9px}
+#list-scroll::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:99px}
+#list-scroll::-webkit-scrollbar-track{background:transparent}
+</style>
+</helmet>
+
+<div style="height:100dvh;max-width:calc(var(--maxw) + var(--maxw-pad,0px));margin:0 auto;padding-right:var(--maxw-pad,0px);display:grid;grid-template-columns:var(--grid-cols);grid-template-rows:var(--grid-rows)">
+
+<aside data-hidescroll="1" style="height:var(--rail-h);max-height:var(--rail-max);min-height:0;overflow-y:var(--rail-ovf);overflow-x:hidden;border-right:var(--aside-br) solid var(--line);border-bottom:var(--aside-bb) solid var(--line);display:grid;grid-template-columns:minmax(0,1fr);grid-auto-rows:min-content;align-content:start;gap:18px;padding:var(--pad) var(--aside-pad-r,var(--pad)) var(--pad) var(--pad);z-index:30">
+
+  <div style="display:flex;align-items:center;gap:12px">
+    <div style="width:44px;height:44px;flex:none;border-radius:50%;overflow:hidden;background:linear-gradient(140deg,var(--accent),#8E5AEE);display:grid;place-items:center">
+      <img src="{{ avatar }}" alt="설홍" style="width:100%;height:100%;object-fit:cover;display:block">
+    </div>
+    <div style="min-width:0">
+      <div style="display:flex;align-items:center;gap:7px">
+        <span style="font:700 18px/1.1 'IBM Plex Sans KR';color:var(--ink);letter-spacing:-.01em">설홍 노래책</span>
+        <span style="display:inline-grid;place-items:center;height:21px;padding:0 8px;border-radius:99px;background:var(--bg3);color:var(--ink-2);font:600 11px/1 'IBM Plex Mono',monospace">{{ totalStr }}</span>
+      </div>
+      <div style="margin-top:4px;font:500 11.5px/1.3 'IBM Plex Sans KR';color:var(--ink-3)">SOOP · 보기 전용 노래책</div>
+    </div>
+  </div>
+
+  <div style="display:grid;gap:8px">
+    <div style="position:relative">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--ink-3);pointer-events:none"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.6-3.6"></path></svg>
+      <input type="text" value="{{ q }}" onInput="{{ onQ }}" placeholder="제목 또는 가수명 검색" style="width:100%;min-height:44px;padding:0 38px 0 37px;border:1px solid var(--line-2);border-radius:10px;background:var(--bg2);color:var(--ink);font:500 13.5px/1 'IBM Plex Sans KR';outline:none" style-focus="border-color:var(--accent)">
+      <sc-if value="{{ hasQ }}"><button onClick="{{ onClearQ }}" aria-label="검색어 지우기" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);width:28px;height:28px;display:grid;place-items:center;border:none;border-radius:50%;background:var(--bg3);color:var(--ink-2);cursor:pointer;font:600 14px/1 'IBM Plex Sans KR'">×</button></sc-if>
+    </div>
+    <div style="display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:7px">
+      <sc-if value="{{ narrow }}">
+        <button onClick="{{ onToggleFilters }}" style="display:flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:0 12px;border:1px solid var(--line-2);border-radius:10px;background:transparent;color:var(--ink);font:600 12.5px/1 'IBM Plex Sans KR';cursor:pointer;white-space:nowrap">{{ filterBtnLabel }}<span style="font:600 10px/1 'IBM Plex Mono',monospace;color:var(--accent)">{{ filterBtnHint }}</span></button>
+      </sc-if>
+      <button onClick="{{ onTheme }}" title="테마 전환" style="min-height:40px;display:flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line-2);border-radius:10px;background:transparent;color:var(--ink-2);cursor:pointer;font:600 12.5px/1 'IBM Plex Sans KR'" style-hover="border-color:var(--accent);color:var(--accent)"><span style="font-size:14px">{{ themeIcon }}</span>테마</button>
+    </div>
+  </div>
+
+  <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
+  <div style="display:grid;gap:18px">
+    <div style="min-width:0">
+      <div style="margin-bottom:9px;font:700 13px/1 'IBM Plex Sans KR';color:var(--ink)">카테고리</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        <sc-for list="{{ genres }}" as="c" hint-placeholder-count="5">
+          <button onClick="{{ c.on }}" style="display:flex;align-items:center;gap:6px;min-height:33px;padding:0 11px;border:1px solid {{ c.bd }};border-radius:8px;background:{{ c.bg }};color:{{ c.fg }};font:600 12.5px/1 'IBM Plex Sans KR';cursor:pointer;white-space:nowrap">
+            <sc-if value="{{ c.dot }}"><span style="width:7px;height:7px;border-radius:50%;background:{{ c.dot }}"></span></sc-if>
+            {{ c.label }}<span style="font:500 11px/1 'IBM Plex Mono',monospace;opacity:.6">{{ c.n }}</span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="min-width:0">
+      <div style="margin-bottom:9px;font:700 13px/1 'IBM Plex Sans KR';color:var(--ink)">가수</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        <sc-for list="{{ artists }}" as="c" hint-placeholder-count="6">
+          <button onClick="{{ c.on }}" style="min-height:33px;padding:0 11px;border:1px solid {{ c.bd }};border-radius:8px;background:{{ c.bg }};color:{{ c.fg }};font:600 12.5px/1 'IBM Plex Sans KR';cursor:pointer;white-space:nowrap">{{ c.label }}<span style="margin-left:6px;font:500 11px/1 'IBM Plex Mono',monospace;opacity:.6">{{ c.n }}</span></button>
+        </sc-for>
+        <sc-if value="{{ hasArtistMore }}">
+          <button onClick="{{ onArtistMore }}" style="min-height:33px;padding:0 11px;border:1px dashed var(--line-2);border-radius:8px;background:transparent;color:var(--ink-3);font:600 12.5px/1 'IBM Plex Sans KR';cursor:pointer;white-space:nowrap" style-hover="color:var(--accent);border-color:var(--accent)">{{ artistMoreLabel }}</button>
+        </sc-if>
+      </div>
+    </div>
+
+    <sc-if value="{{ hasDiffs }}">
+    <div style="min-width:0">
+      <div style="margin-bottom:9px;font:700 13px/1 'IBM Plex Sans KR';color:var(--ink)">난이도</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        <sc-for list="{{ diffs }}" as="c" hint-placeholder-count="0">
+          <button onClick="{{ c.on }}" style="min-height:33px;padding:0 11px;border:1px solid {{ c.bd }};border-radius:8px;background:{{ c.bg }};color:{{ c.fg }};font:600 12.5px/1 'IBM Plex Sans KR';cursor:pointer;white-space:nowrap">{{ c.label }}<span style="margin-left:6px;font:500 11px/1 'IBM Plex Mono',monospace;opacity:.6">{{ c.n }}</span></button>
+        </sc-for>
+      </div>
+    </div>
+    </sc-if>
+
+    <button onClick="{{ onFavOnly }}" style="display:flex;align-items:center;gap:8px;min-height:40px;padding:0 12px;border:1px solid {{ favBd }};border-radius:10px;background:{{ favBg }};color:{{ favFg }};font:600 12.5px/1 'IBM Plex Sans KR';cursor:pointer;width:100%">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21C7 16.9 3 13.5 3 9.7 3 7 5.1 5 7.7 5c1.7 0 3.3.8 4.3 2.2C13 5.8 14.6 5 16.3 5 18.9 5 21 7 21 9.7c0 3.8-4 7.2-9 11.3z"></path></svg>
+      즐겨찾기만 보기<span style="margin-left:auto;font:500 11.5px/1 'IBM Plex Mono',monospace;opacity:.7">{{ favCount }}</span>
+    </button>
+
+    <div style="padding-top:14px;border-top:1px solid var(--line);display:grid;gap:5px">
+      <div style="font:500 11.5px/1.5 'IBM Plex Sans KR';color:var(--ink-3)">{{ sourceLine }}</div>
+    </div>
+  </div>
+  </sc-if>
+</aside>
+
+<main style="min-width:0;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr)">
+  <div style="padding:13px var(--main-pad-r) 11px var(--main-pad);border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px">
+    <div style="display:flex;align-items:baseline;gap:10px;min-width:0;margin-right:auto">
+      <span style="font:700 15.5px/1.2 'IBM Plex Sans KR';color:var(--ink);letter-spacing:-.01em;white-space:nowrap">{{ countLine }}</span>
+      <span style="font:500 12.5px/1.3 'IBM Plex Sans KR';color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ filterSummary }}</span>
+    </div>
+    <sc-if value="{{ dirty }}"><button onClick="{{ onReset }}" style="flex:none;min-height:36px;padding:0 12px;border:1px solid var(--line-2);border-radius:99px;background:transparent;color:var(--ink-2);font:600 12px/1 'IBM Plex Sans KR';cursor:pointer" style-hover="border-color:var(--accent);color:var(--accent)">초기화</button></sc-if>
+    <button onClick="{{ onRandom }}" style="display:flex;align-items:center;gap:7px;min-height:38px;padding:0 13px;border:none;border-radius:10px;background:var(--accent);color:var(--on-accent);font:700 12.5px/1 'IBM Plex Sans KR';cursor:pointer" style-hover="filter:brightness(1.1)" style-active="transform:translateY(1px)">
+      <span style="font-size:15px;line-height:1">🍣</span>
+      설마카세
+    </button>
+    <div style="display:flex;gap:2px;padding:3px;border:1px solid var(--line-2);border-radius:10px;background:var(--bg2)">
+      <button onClick="{{ onGridView }}" title="앨범형 보기" aria-label="앨범형 보기" style="width:35px;height:30px;display:grid;place-items:center;border:none;border-radius:7px;background:{{ gridBg }};color:{{ gridFg }};cursor:pointer">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><rect x="3.5" y="3.5" width="7" height="7" rx="1.8"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="1.8"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="1.8"></rect><rect x="13.5" y="13.5" width="7" height="7" rx="1.8"></rect></svg>
+      </button>
+      <button onClick="{{ onListView }}" title="목록형 보기" aria-label="목록형 보기" style="width:35px;height:30px;display:grid;place-items:center;border:none;border-radius:7px;background:{{ listBg }};color:{{ listFg }};cursor:pointer">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01M9 6h10.5M9 12h10.5M9 18h10.5"></path></svg>
+      </button>
+      <button onClick="{{ onCompactView }}" title="컴팩트 보기" aria-label="컴팩트 보기" style="width:35px;height:30px;display:grid;place-items:center;border:none;border-radius:7px;background:{{ compactBg }};color:{{ compactFg }};cursor:pointer">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="3" width="5" height="5" rx="1.2"></rect><rect x="9.5" y="3" width="5" height="5" rx="1.2"></rect><rect x="16" y="3" width="5" height="5" rx="1.2"></rect><rect x="3" y="9.5" width="5" height="5" rx="1.2"></rect><rect x="9.5" y="9.5" width="5" height="5" rx="1.2"></rect><rect x="16" y="9.5" width="5" height="5" rx="1.2"></rect><rect x="3" y="16" width="5" height="5" rx="1.2"></rect><rect x="9.5" y="16" width="5" height="5" rx="1.2"></rect><rect x="16" y="16" width="5" height="5" rx="1.2"></rect></svg>
+      </button>
+    </div>
+    <select value="{{ sortVal }}" onChange="{{ onSort }}" aria-label="정렬 기준" style="min-height:38px;padding:0 10px;border:1px solid var(--line-2);border-radius:10px;background:var(--bg2);color:var(--ink);font:600 12.5px/1 'IBM Plex Sans KR';outline:none;cursor:pointer">
+      <sc-for list="{{ sortOptions }}" as="o" hint-placeholder-count="0"><option value="{{ o.v }}">{{ o.label }}</option></sc-for>
+    </select>
+  </div>
+
+  <div id="list-scroll" style="min-height:0;overflow-y:auto;overflow-x:hidden;padding:0 var(--main-pad-r) 26px var(--main-pad)">
+
+  <sc-for list="{{ notices }}" as="nt" hint-placeholder-count="0">
+    <div style="margin:16px 0 4px;border:1px solid var(--line-2);border-radius:12px;background:var(--bg2);overflow:hidden">
+      <button onClick="{{ nt.onToggle }}" style="width:100%;display:flex;align-items:center;gap:10px;padding:12px 14px;border:none;background:transparent;cursor:pointer;text-align:left">
+        <span style="flex:none;display:inline-grid;place-items:center;height:23px;padding:0 10px;border-radius:99px;background:var(--accent);color:var(--on-accent);font:700 11px/1 'IBM Plex Sans KR';letter-spacing:.04em">공지</span>
+        <span style="flex:1;min-width:0;font:700 13px/1.35 'IBM Plex Sans KR';color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ nt.title }}</span>
+        <sc-if value="{{ nt.hasBody }}"><span style="flex:none;font:600 11.5px/1 'IBM Plex Mono',monospace;color:var(--ink-3)">{{ nt.chev }}</span></sc-if>
+      </button>
+      <sc-if value="{{ nt.open }}">
+        <div style="padding:2px 16px 16px;border-top:1px solid var(--line)">
+          <div style="margin-top:12px;font:500 13px/1.9 'IBM Plex Sans KR';color:var(--ink-2);white-space:pre-line;text-wrap:pretty">{{ nt.body }}</div>
+        </div>
+      </sc-if>
+    </div>
+  </sc-for>
+
+  <sc-if value="{{ loading }}" hint-placeholder-val="{{ true }}">
+    <div style="display:grid;grid-template-columns:var(--gridcols);gap:14px;padding-top:18px">
+      <sc-for list="{{ skeletons }}" as="k" hint-placeholder-count="8">
+        <div><div style="aspect-ratio:1;border-radius:11px;background:var(--bg3);animation:flick 1.4s ease-in-out infinite"></div><div style="margin-top:9px;height:13px;width:80%;border-radius:5px;background:var(--bg3);animation:flick 1.4s ease-in-out infinite"></div><div style="margin-top:6px;height:11px;width:50%;border-radius:5px;background:var(--bg3);animation:flick 1.4s ease-in-out infinite"></div></div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <sc-for list="{{ groups }}" as="g" hint-placeholder-count="0">
+    <section id="cho-{{ g.key }}" style="scroll-margin-top:8px">
+      <div style="position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:10px;padding:14px 0 10px;background:linear-gradient(180deg,var(--bg) 72%,transparent)">
+        <span style="font:700 15px/1 'IBM Plex Sans KR';color:var(--accent)">{{ g.label }}</span>
+        <span style="flex:1;height:1px;background:var(--line)"></span>
+        <span style="font:500 11px/1 'IBM Plex Mono',monospace;color:var(--ink-3)">{{ g.n }}</span>
+      </div>
+
+      <sc-if value="{{ isGrid }}" hint-placeholder-val="{{ true }}">
+      <div style="display:grid;grid-template-columns:{{ gridTemplate }};gap:16px 14px;padding:4px 0 20px">
+        <sc-for list="{{ g.items }}" as="s" hint-placeholder-count="0">
+          <div id="song-{{ s.id }}" style="position:relative;scroll-margin-top:60px">
+            <div style="position:relative;aspect-ratio:1;border-radius:11px;overflow:hidden;background:var(--bg3);box-shadow:0 1px 0 rgba(255,255,255,.04) inset">
+              <sc-if value="{{ s.art }}"><img src="{{ s.art }}" alt="" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .25s ease" style-hover="transform:scale(1.045)"></sc-if>
+              <sc-if value="{{ s.noArt }}"><div style="position:absolute;inset:0;display:grid;place-items:center;font:600 30px/1 'IBM Plex Mono',monospace;color:var(--ink-3)">♪</div></sc-if>
+              <sc-if value="{{ s.picked }}"><div style="position:absolute;inset:0;border:2.5px solid var(--accent);border-radius:11px;pointer-events:none;z-index:3;animation:fadeup .3s ease"></div></sc-if>
+              <button onClick="{{ s.onFav }}" title="즐겨찾기" aria-label="즐겨찾기" style="position:absolute;top:8px;right:8px;width:32px;height:32px;display:grid;place-items:center;border:none;border-radius:50%;background:{{ s.favBub }};color:#fff;cursor:pointer;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)" style-hover="transform:scale(1.1)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="{{ s.starFill }}" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 21C7 16.9 3 13.5 3 9.7 3 7 5.1 5 7.7 5c1.7 0 3.3.8 4.3 2.2C13 5.8 14.6 5 16.3 5 18.9 5 21 7 21 9.7c0 3.8-4 7.2-9 11.3z"></path></svg>
+              </button>
+              <sc-if value="{{ s.hasDiff }}"><div style="position:absolute;right:6px;bottom:6px;z-index:2;display:flex;align-items:center;height:16px;padding:0 4px;border-radius:6px;background:rgba(10,10,14,.28);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);font:700 8px/1 'IBM Plex Sans KR';color:#fff;white-space:nowrap;text-shadow:0 1px 2px rgba(0,0,0,.55)">{{ s.diffLabel }}</div></sc-if>
+            </div>
+            <div style="display:grid;gap:5px;padding:9px 2px 0">
+              <div style="font:600 13.5px/1.4 'IBM Plex Sans KR';color:var(--ink);letter-spacing:-.005em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-wrap:pretty">{{ s.title }}</div>
+              <sc-if value="{{ s.meta }}">
+              <div>
+                <div style="font:500 12px/1.3 'IBM Plex Sans KR';color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.artist }}</div>
+                <sc-if value="{{ s.hasTags }}"><div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:5px"><sc-for list="{{ s.tagBadges }}" as="t" hint-placeholder-count="0"><span style="display:inline-grid;place-items:center;height:21px;padding:0 9px;border-radius:6px;background:{{ t.bg }};color:{{ t.fg }};font:700 11px/1 'IBM Plex Sans KR'">{{ t.label }}</span></sc-for></div></sc-if>
+              </div>
+              </sc-if>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{ isList }}">
+      <div style="padding-bottom:14px">
+      <sc-for list="{{ g.items }}" as="s" hint-placeholder-count="0">
+        <div id="row-{{ s.id }}" style="position:relative;display:grid;grid-template-columns:var(--art) minmax(0,1fr) auto;gap:13px;align-items:center;padding:var(--rowpad) 10px;border-bottom:1px solid var(--line);border-radius:10px;scroll-margin-top:60px">
+          <sc-if value="{{ s.picked }}"><div style="position:absolute;inset:0;border:2px solid var(--accent);border-radius:10px;pointer-events:none;animation:fadeup .3s ease"></div></sc-if>
+          <sc-if value="{{ s.art }}"><img src="{{ s.art }}" alt="" loading="lazy" style="width:var(--art);height:var(--art);object-fit:cover;border-radius:9px;background:var(--bg3);display:block"></sc-if>
+          <sc-if value="{{ s.noArt }}"><div style="width:var(--art);height:var(--art);border-radius:9px;background:var(--bg3);display:grid;place-items:center;font:600 17px/1 'IBM Plex Mono',monospace;color:var(--ink-3)">♪</div></sc-if>
+          <div style="min-width:0;display:grid;gap:4px">
+            <div style="font:600 14.5px/1.35 'IBM Plex Sans KR';color:var(--ink);letter-spacing:-.005em;text-wrap:pretty">{{ s.title }}</div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <span style="font:500 12.5px/1.3 'IBM Plex Sans KR';color:var(--ink-3)">{{ s.artist }}</span>
+              <sc-for list="{{ s.tagBadges }}" as="t" hint-placeholder-count="0"><span style="display:inline-grid;place-items:center;height:20px;padding:0 8px;border-radius:6px;background:{{ t.bg }};color:{{ t.fg }};font:700 10.5px/1 'IBM Plex Sans KR'">{{ t.label }}</span></sc-for>
+              <sc-if value="{{ s.hasDiff }}"><span style="display:inline-grid;place-items:center;height:20px;padding:0 8px;border-radius:6px;border:1px solid {{ s.diffBd }};background:{{ s.diffBg }};color:{{ s.diffFg }};font:700 10.5px/1 'IBM Plex Sans KR'">{{ s.diffLabel }}</span></sc-if>
+            </div>
+          </div>
+          <button onClick="{{ s.onFav }}" title="즐겨찾기" style="width:38px;height:38px;flex:none;display:grid;place-items:center;border:none;border-radius:10px;background:transparent;color:{{ s.favRowFg }};cursor:pointer" style-hover="background:var(--bg3)">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="{{ s.starFill }}" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 21C7 16.9 3 13.5 3 9.7 3 7 5.1 5 7.7 5c1.7 0 3.3.8 4.3 2.2C13 5.8 14.6 5 16.3 5 18.9 5 21 7 21 9.7c0 3.8-4 7.2-9 11.3z"></path></svg>
+          </button>
+        </div>
+      </sc-for>
+      </div>
+      </sc-if>
+    </section>
+  </sc-for>
+
+  <sc-if value="{{ empty }}">
+    <div style="padding:70px 20px;text-align:center;display:grid;justify-items:center;gap:12px">
+      <div style="font:700 19px/1.3 'IBM Plex Sans KR';color:var(--ink-2)">찾는 곡이 없어요</div>
+      <div style="font:500 13.5px/1.6 'IBM Plex Sans KR';color:var(--ink-3);max-width:340px;text-wrap:pretty">검색어를 줄이거나 필터를 풀어보세요. 목록에 없는 곡도 채팅으로 물어보면 도전해볼 수 있어요.</div>
+      <button onClick="{{ onReset }}" style="margin-top:6px;min-height:42px;padding:0 18px;border:none;border-radius:10px;background:var(--accent);color:var(--on-accent);font:700 13px/1 'IBM Plex Sans KR';cursor:pointer">전체 목록 보기</button>
+    </div>
+  </sc-if>
+  </div>
+</main>
+</div>
+
+<nav data-hidescroll="1" style="position:fixed;right:4px;top:50%;transform:translateY(-50%);z-index:45;display:var(--cho-disp);flex-direction:column;gap:1px;padding:6px 3px;border-radius:99px;background:var(--bg2);border:1px solid var(--line)">
+  <sc-for list="{{ choRail }}" as="c" hint-placeholder-count="16">
+    <button onClick="{{ c.on }}" style="width:25px;height:21px;display:grid;place-items:center;border:none;border-radius:7px;background:transparent;color:{{ c.col }};font:600 11px/1 'IBM Plex Sans KR';cursor:pointer" style-hover="background:var(--accent);color:var(--on-accent)">{{ c.label }}</button>
+  </sc-for>
+</nav>
+
+<sc-if value="{{ sheetOpen }}">
+  <div onClick="{{ onToggleFilters }}" style="position:fixed;inset:0;z-index:75;background:rgba(0,0,0,.55);display:flex;align-items:flex-end">
+    <div onClick="{{ stop }}" style="width:100%;max-height:80dvh;overflow-y:auto;background:var(--bg2);border-top-left-radius:18px;border-top-right-radius:18px;box-shadow:0 -20px 50px -20px rgba(0,0,0,.6);animation:fadeup .22s ease both">
+      <div style="position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:15px 18px 11px;background:var(--bg2);border-bottom:1px solid var(--line)">
+        <span style="font:700 14.5px/1 'IBM Plex Sans KR';color:var(--ink)">필터 · 정렬</span>
+        <button onClick="{{ onToggleFilters }}" style="min-height:34px;padding:0 13px;border:1px solid var(--line-2);border-radius:99px;background:transparent;color:var(--ink-2);font:600 12.5px/1 'IBM Plex Sans KR';cursor:pointer">닫기</button>
+      </div>
+      <div style="display:grid;gap:17px;padding:16px 18px 26px">
+        <div style="min-width:0">
+          <div style="margin-bottom:9px;font:700 13px/1 'IBM Plex Sans KR';color:var(--ink)">카테고리</div>
+          <div style="display:flex;flex-wrap:wrap;gap:7px">
+            <sc-for list="{{ genres }}" as="c" hint-placeholder-count="5">
+              <button onClick="{{ c.on }}" style="display:flex;align-items:center;gap:6px;min-height:42px;padding:0 14px;border:1px solid {{ c.bd }};border-radius:10px;background:{{ c.bg }};color:{{ c.fg }};font:600 13.5px/1 'IBM Plex Sans KR';cursor:pointer">
+                <sc-if value="{{ c.dot }}"><span style="width:7px;height:7px;border-radius:50%;background:{{ c.dot }}"></span></sc-if>
+                {{ c.label }}<span style="font:500 11.5px/1 'IBM Plex Mono',monospace;opacity:.6">{{ c.n }}</span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+        <div style="min-width:0">
+          <div style="margin-bottom:9px;font:700 13px/1 'IBM Plex Sans KR';color:var(--ink)">가수</div>
+          <div style="display:flex;flex-wrap:wrap;gap:7px">
+            <sc-for list="{{ artists }}" as="c" hint-placeholder-count="5">
+              <button onClick="{{ c.on }}" style="min-height:42px;padding:0 14px;border:1px solid {{ c.bd }};border-radius:10px;background:{{ c.bg }};color:{{ c.fg }};font:600 13.5px/1 'IBM Plex Sans KR';cursor:pointer">{{ c.label }}<span style="margin-left:6px;font:500 11.5px/1 'IBM Plex Mono',monospace;opacity:.6">{{ c.n }}</span></button>
+            </sc-for>
+            <sc-if value="{{ hasArtistMore }}">
+              <button onClick="{{ onArtistMore }}" style="min-height:42px;padding:0 14px;border:1px dashed var(--line-2);border-radius:10px;background:transparent;color:var(--ink-3);font:600 13.5px/1 'IBM Plex Sans KR';cursor:pointer">{{ artistMoreLabel }}</button>
+            </sc-if>
+          </div>
+        </div>
+        <sc-if value="{{ hasDiffs }}">
+        <div style="min-width:0">
+          <div style="margin-bottom:9px;font:700 13px/1 'IBM Plex Sans KR';color:var(--ink)">난이도</div>
+          <div style="display:flex;flex-wrap:wrap;gap:7px">
+            <sc-for list="{{ diffs }}" as="c" hint-placeholder-count="0">
+              <button onClick="{{ c.on }}" style="min-height:42px;padding:0 14px;border:1px solid {{ c.bd }};border-radius:10px;background:{{ c.bg }};color:{{ c.fg }};font:600 13.5px/1 'IBM Plex Sans KR';cursor:pointer">{{ c.label }}<span style="margin-left:6px;font:500 11.5px/1 'IBM Plex Mono',monospace;opacity:.6">{{ c.n }}</span></button>
+            </sc-for>
+          </div>
+        </div>
+        </sc-if>
+        <button onClick="{{ onFavOnly }}" style="display:flex;align-items:center;gap:9px;min-height:48px;padding:0 14px;border:1px solid {{ favBd }};border-radius:12px;background:{{ favBg }};color:{{ favFg }};font:600 13.5px/1 'IBM Plex Sans KR';cursor:pointer;width:100%">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21C7 16.9 3 13.5 3 9.7 3 7 5.1 5 7.7 5c1.7 0 3.3.8 4.3 2.2C13 5.8 14.6 5 16.3 5 18.9 5 21 7 21 9.7c0 3.8-4 7.2-9 11.3z"></path></svg>
+          즐겨찾기만 보기<span style="margin-left:auto;font:500 12px/1 'IBM Plex Mono',monospace;opacity:.7">{{ favCount }}</span>
+        </button>
+        <button onClick="{{ onToggleFilters }}" style="min-height:48px;border:none;border-radius:12px;background:var(--accent);color:var(--on-accent);font:700 14px/1 'IBM Plex Sans KR';cursor:pointer">{{ shownStr }} 보기</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ randomOpen }}">
+  <div onClick="{{ onRandomClose }}" style="position:fixed;inset:0;z-index:78;background:rgba(0,0,0,.6);display:grid;place-items:center;padding:18px;overflow:auto">
+    <div onClick="{{ stop }}" style="width:min(740px,100%);border:1px solid var(--line-2);border-radius:16px;background:var(--bg2);box-shadow:0 30px 70px -20px rgba(0,0,0,.7);animation:fadeup .22s ease both;overflow:hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:17px 18px 0">
+        <span style="font:700 17px/1.2 'IBM Plex Sans KR';color:var(--ink)">설마카세 🍣</span>
+        <button onClick="{{ onRandomClose }}" aria-label="닫기" style="width:30px;height:30px;display:grid;place-items:center;border:none;border-radius:50%;background:var(--bg3);color:var(--ink-2);font:600 15px/1 'IBM Plex Sans KR';cursor:pointer">×</button>
+      </div>
+      <div style="padding:7px 18px 0;font:500 12.5px/1.5 'IBM Plex Sans KR';color:var(--ink-3)">어떤 노래를 신청할지 고민인 당신을 위해! 설마카세가 랜덤으로 뽑아드립니다!</div>
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:7px;padding:14px 18px 0">
+        <select value="{{ randomGenre }}" onChange="{{ onRandomGenre }}" aria-label="카테고리" style="min-height:38px;padding:0 10px;border:1px solid var(--line-2);border-radius:10px;background:var(--bg3);color:var(--ink);font:600 12.5px/1 'IBM Plex Sans KR';outline:none;cursor:pointer">
+          <sc-for list="{{ randomGenreOptions }}" as="o" hint-placeholder-count="0"><option value="{{ o.v }}">{{ o.label }}</option></sc-for>
+        </select>
+        <span style="margin-left:auto;display:flex;gap:7px">
+          <button onClick="{{ onRollOne }}" style="min-height:38px;padding:0 13px;border:1px solid var(--line-2);border-radius:10px;background:transparent;color:var(--ink-2);font:600 12.5px/1 'IBM Plex Sans KR';cursor:pointer" style-hover="border-color:var(--accent);color:var(--accent)">한 곡만 뽑기</button>
+          <button onClick="{{ onRollMany }}" style="display:flex;align-items:center;gap:6px;min-height:38px;padding:0 13px;border:none;border-radius:10px;background:var(--accent);color:var(--on-accent);font:700 12.5px/1 'IBM Plex Sans KR';cursor:pointer" style-hover="filter:brightness(1.1)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M20 11A8 8 0 1 0 12 20"></path><path d="M20 4v7h-7"></path></svg>
+            다시 뽑기
+          </button>
+        </span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:14px;padding:16px 18px 20px">
+        <sc-for list="{{ randomPicks }}" as="s" hint-placeholder-count="0">
+          <div>
+            <div style="position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--bg3)">
+              <sc-if value="{{ s.art }}"><img src="{{ s.art }}" alt="" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></sc-if>
+              <sc-if value="{{ s.noArt }}"><div style="position:absolute;inset:0;display:grid;place-items:center;font:600 26px/1 'IBM Plex Mono',monospace;color:var(--ink-3)">♪</div></sc-if>
+            </div>
+            <div style="display:grid;gap:4px;padding:8px 2px 0">
+              <div style="font:600 13px/1.35 'IBM Plex Sans KR';color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ s.title }}</div>
+              <div style="font:500 11.5px/1.3 'IBM Plex Sans KR';color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.artist }}</div>
+              <sc-if value="{{ s.hasTags }}"><div style="display:flex;flex-wrap:wrap;gap:5px"><sc-for list="{{ s.tagBadges }}" as="t" hint-placeholder-count="0"><span style="display:inline-grid;place-items:center;height:20px;padding:0 8px;border-radius:6px;background:{{ t.bg }};color:{{ t.fg }};font:700 10.5px/1 'IBM Plex Sans KR'">{{ t.label }}</span></sc-for></div></sc-if>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ toast }}">
+  <div style="position:fixed;left:50%;bottom:30px;transform:translateX(-50%);z-index:70;pointer-events:none">
+    <div style="animation:stamp .3s cubic-bezier(.2,1.3,.5,1) both;display:flex;align-items:center;gap:10px;padding:13px 20px;border:1px solid var(--line-2);border-radius:12px;background:var(--bg2);box-shadow:0 18px 40px -18px rgba(0,0,0,.7)">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"></path></svg>
+      <span style="font:700 13.5px/1.3 'IBM Plex Sans KR';color:var(--ink)">{{ toast }}</span>
+    </div>
+  </div>
+</sc-if>
+
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;sheetUrl&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;https://docs.google.com/spreadsheets/d/1EIC0gzm2FaagiTpN9sn6q-_PIgw6e5qGevERvqceSPg/edit&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;데이터&quot;},&quot;sheetTab&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;노래&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;데이터&quot;},&quot;noticeTab&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;공지사항&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;데이터&quot;},&quot;requestCommand&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;!신청곡 {곡} - {가수}&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;데이터&quot;},&quot;noticeTitle&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;༺설홍이 노래책༻ 도네 안내&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;공지&quot;},&quot;noticeBody&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;200개 : 일반 노래 1곡\n300개 : 고음 노래 1곡\n1000개 : 애교&amp;매도 노래 1곡\n2000개 : 노래 숙제 1곡\n5000개 : 애교송 숙제\n✿✿✿✿✿✿✿✿✿✿✿✿\n300개 : 해금 연주 1곡\n3000개 : 해금연주 숙제 1곡\n✿✿✿✿✿✿✿✿✿✿✿✿\n일반 노래 추가 : 도전미션 200개 (잘 모르면 다시 돌려드려요!)\n해금 노래 추가 : 도전미션 300개\n애교 노래 추가 : 도전미션 1000개&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;공지&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#EE5A93&quot;,&quot;options&quot;:[&quot;#EE5A93&quot;,&quot;#7C5CFF&quot;,&quot;#3D9BFF&quot;,&quot;#FF6A4D&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;브랜드&quot;},&quot;defaultTheme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;night&quot;,&quot;book&quot;],&quot;default&quot;:&quot;night&quot;,&quot;tsType&quot;:&quot;'night'|'book'&quot;,&quot;section&quot;:&quot;브랜드&quot;},&quot;density&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;여유&quot;,&quot;보통&quot;,&quot;촘촘&quot;],&quot;default&quot;:&quot;보통&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;레이아웃&quot;},&quot;showArt&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;레이아웃&quot;}}">
+const SHEET = "https://docs.google.com/spreadsheets/d/1EIC0gzm2FaagiTpN9sn6q-_PIgw6e5qGevERvqceSPg/edit";
+
+const AVATARS = ["./assets/profile/profile.png"];
+
+const SAMPLE = [
+"가시나무|시인과 촌장|발라드","강남스타일|싸이|댄스","걱정말아요 그대|들국화|가요",
+"그날처럼|장범준|발라드","나만 안되는 연애|볼빨간사춘기|팝","너를 만나|폴킴|발라드",
+"눈의 꽃|박효신|발라드","다시 만난 세계|소녀시대|댄스","도망가자|선우정아|발라드",
+"라일락|아이유|팝","롤린|브레이브걸스|댄스","마리골드|아이묭|J-POP",
+"밤편지|아이유|발라드","벚꽃 엔딩|버스커 버스커|팝","봄날|방탄소년단|팝",
+"붉은 노을|이문세|가요","사랑은 늘 도망가|임영웅|발라드","소주 한 잔|임창정|발라드",
+"신호등|이무진|팝","아파트|로제|댄스","안동역에서|진성|트로트",
+"애인있어요|이은미|발라드","이 밤의 끝을 잡고|솔리드|R&B","좋니|윤종신|발라드",
+"천본앵|하츠네 미쿠|보컬로이드","첫사랑|우타다 히카루|J-POP","취중진담|김동률|발라드",
+"텔레파시|아이브|댄스","홍련화|LiSA|애니","회상|산울림|가요",
+"Hey Jude|The Beatles|팝","Perfect|Ed Sheeran|팝","Rolling in the Deep|Adele|팝",
+"Shape of You|Ed Sheeran|팝","Someone Like You|Adele|팝","Viva La Vida|Coldplay|팝"
+];
+
+const CHO = ["ㄱ","ㄱ","ㄴ","ㄷ","ㄷ","ㄹ","ㅁ","ㅂ","ㅂ","ㅅ","ㅅ","ㅇ","ㅈ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
+const RAIL = ["ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ","A","#"];
+const BADGE = [["#8EC5FF","#0C1B30"],["#F5B0E4","#2C0F26"],["#FFD97A","#2A2006"],["#FF9E9E","#2C0D0D"],["#9FE8BD","#0C2417"],["#C9BCFF","#191139"]];
+
+function choOf(str){
+  const s = (str || "").trim();
+  if (!s) return "#";
+  const c = s.charCodeAt(0);
+  if (c >= 0xac00 && c <= 0xd7a3) return CHO[Math.floor((c - 0xac00) / 588)];
+  if (c >= 0x3131 && c <= 0x314e) return s[0];
+  if (/[a-zA-Z]/.test(s[0])) return "A";
+  return "#";
+}
+
+function badgeOf(name){
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) % 9973;
+  return BADGE[h % BADGE.length];
+}
+
+function parseCSV(text){
+  const rows = []; let row = [], cell = "", quoted = false;
+  for (let i = 0; i < text.length; i++){
+    const ch = text[i];
+    if (quoted){
+      if (ch === '"'){ if (text[i+1] === '"'){ cell += '"'; i++; } else quoted = false; }
+      else cell += ch;
+    } else if (ch === '"') quoted = true;
+    else if (ch === ","){ row.push(cell); cell = ""; }
+    else if (ch === "\n"){ row.push(cell); rows.push(row); row = []; cell = ""; }
+    else if (ch !== "\r") cell += ch;
+  }
+  if (cell.length || row.length){ row.push(cell); rows.push(row); }
+  return rows.filter(r => r.some(v => (v || "").trim() !== ""));
+}
+
+function pick(headers, keys){
+  for (let i = 0; i < headers.length; i++){
+    const h = (headers[i] || "").toLowerCase().replace(/\s/g, "");
+    if (keys.some(k => h.includes(k))) return i;
+  }
+  return -1;
+}
+
+function imageUrl(raw){
+  let v = (raw || "").trim();
+  if (!v) return "";
+  const f = v.match(/=?IMAGE\(\s*"([^"]+)"/i);
+  if (f) v = f[1];
+  const d = v.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?[^]*id=)([a-zA-Z0-9_-]{20,})/);
+  if (d) return "https://drive.google.com/thumbnail?id=" + d[1] + "&sz=w240";
+  if (/^https?:\/\//.test(v)) return v;
+  return "";
+}
+
+function diffStars(v){
+  const s = (v || "").trim();
+  const m = s.match(/^([1-5])\b/);
+  let n = 0;
+  if (m) n = parseInt(m[1], 10);
+  else if (/(어려|어렵|상|고음|hard|최상|헬|극)/i.test(s)) n = 3;
+  else if (/(보통|중|normal|mid|중급)/i.test(s)) n = 2;
+  else if (/(쉬|하|easy|초|저)/i.test(s)) n = 1;
+  return n ? "⭐".repeat(n) : "";
+}
+
+class Component extends DCLogic {
+  state = {
+    songs: [], loading: true, source: "sample", note: "",
+    q: "", genre: "전체", artist: "전체", difficulty: "전체", favOnly: false,
+    sort: "ka", favs: {}, theme: "night", view: "grid", toast: "", picked: null,
+    narrow: false, filtersOpen: false, noticeOpen: {}, notices: [],
+    artistsExpanded: false, randomOpen: false, randomPicks: [], randomGenre: "전체",
+    avatar: AVATARS[Math.floor(Math.random() * AVATARS.length)]
+  };
+
+  roll(n){
+    const g = this.state.randomGenre;
+    const pool = this.state.songs.filter(s => g === "전체" || (s.tags || []).includes(g));
+    if (!pool.length){ this.flash("뽑을 곡이 없어요"); this.setState({ randomPicks: [] }); return; }
+    const picks = [], used = new Set();
+    while (picks.length < Math.min(n, pool.length)){
+      const i = Math.floor(Math.random() * pool.length);
+      if (used.has(i)) continue;
+      used.add(i); picks.push(pool[i]);
+    }
+    this.setState({ randomPicks: picks });
+  }
+
+  componentDidMount(){
+    let favs = {};
+    try { favs = JSON.parse(localStorage.getItem("sh.songbook.favs") || "{}"); } catch (e) {}
+    const theme = localStorage.getItem("sh.songbook.theme") || (this.props.defaultTheme || "night");
+    const view = localStorage.getItem("sh.songbook.view") || "grid";
+    this.setState({ favs, theme, view });
+    this.applyTheme(theme);
+    this.applyVars();
+    this.onResize = () => {
+      const n = window.innerWidth < 960;
+      if (n !== this.state.narrow) this.setState({ narrow: n });
+    };
+    window.addEventListener("resize", this.onResize);
+    this.onResize();
+    this.load();
+  }
+
+  componentDidUpdate(prev){
+    if (prev.sheetUrl !== this.props.sheetUrl || prev.sheetTab !== this.props.sheetTab || prev.noticeTab !== this.props.noticeTab) this.load();
+    this.applyVars();
+  }
+
+  componentWillUnmount(){
+    window.removeEventListener("resize", this.onResize);
+    clearTimeout(this._toast); clearInterval(this._roll);
+  }
+
+  applyTheme(t){ document.documentElement.dataset.theme = t === "book" ? "book" : "night"; }
+
+  applyVars(){
+    const r = document.documentElement.style;
+    const d = this.props.density || "보통";
+    r.setProperty("--rowpad", d === "여유" ? "16px" : d === "촘촘" ? "7px" : "11px");
+    if (this.props.showArt === false) r.setProperty("--art", "0px");
+    if (this.props.accent) r.setProperty("--accent", this.props.accent);
+  }
+
+  build(rows){
+    return rows.map((r, i) => ({
+      id: "s" + i,
+      no: (r[0] || "").trim() || String(i + 1),
+      title: (r[1] || "").trim(),
+      artist: (r[2] || "").trim(),
+      genre: (r[3] || "").trim(),
+      tags: (r[3] || "").split(/\s*[,/·、|]\s*/).map(t => t.trim()).filter(Boolean),
+      art: imageUrl(r[4]),
+      diff: (r[5] || "").trim()
+    })).filter(s => s.title);
+  }
+
+  endpointFor(url, idm, gidm, tab){
+    if (/\/pub/.test(url)) return url + (url.includes("?") ? "&" : "?") + "output=csv";
+    if (!idm) return "";
+    return "https://docs.google.com/spreadsheets/d/" + idm[1] + "/gviz/tq?tqx=out:csv" +
+      (tab ? "&sheet=" + encodeURIComponent(tab) : gidm ? "&gid=" + gidm[1] : "");
+  }
+
+  async load(){
+    const url = ((this.props.sheetUrl || "").trim()) || SHEET;
+    const idm = url.match(/\/d\/(?:e\/)?([a-zA-Z0-9-_]+)/);
+    const gidm = url.match(/[#&?]gid=([0-9]+)/);
+    this.setState({ loading: true });
+
+    // "공지사항" 탭 → 공지 (실패해도 곡 로딩엔 영향 없음)
+    this.loadNotices(url, idm, gidm);
+
+    // "노래" 탭 → 곡
+    try {
+      const endpoint = this.endpointFor(url, idm, gidm, (this.props.sheetTab || "노래").trim());
+      if (!endpoint) throw new Error("bad url");
+      const res = await fetch(endpoint);
+      if (!res.ok) throw new Error("http " + res.status);
+      const rows = parseCSV(await res.text());
+      if (rows.length < 2) throw new Error("empty");
+      const head = rows[0];
+      const ix = [
+        pick(head, ["id", "번호", "no"]),
+        pick(head, ["제목", "곡", "title", "song"]),
+        pick(head, ["가수", "아티스트", "artist", "singer"]),
+        pick(head, ["장르", "카테고리", "genre"]),
+        pick(head, ["앨범", "사진", "이미지", "커버", "image", "cover", "art"]),
+        pick(head, ["난이도", "difficulty", "level", "diff"])
+      ];
+      const mapped = rows.slice(1).map(r => ix.map(i => (i >= 0 ? r[i] : "")));
+      this.setState({ songs: this.build(mapped), loading: false, source: "sheet", note: "" });
+    } catch (e){
+      this.setState({
+        songs: [],
+        loading: false, source: "empty",
+        note: "곡 목록을 불러오지 못했어요. 시트 공개 설정(링크 보기 권한)과 '노래' 탭을 확인해주세요."
+      });
+    }
+  }
+
+  async loadNotices(url, idm, gidm){
+    try {
+      const endpoint = this.endpointFor(url, idm, gidm, (this.props.noticeTab || "공지사항").trim());
+      if (!endpoint) return;
+      const res = await fetch(endpoint);
+      if (!res.ok) throw new Error("http " + res.status);
+      const rows = parseCSV(await res.text());
+      if (!rows.length){ this.setState({ notices: [] }); return; }
+      const width = Math.max.apply(null, rows.map(r => r.length));
+      let notices;
+      if (width >= 2){
+        // 표 형식(2열 이상): 헤더행 + 각 행이 하나의 공지 (제목 / 내용 열)
+        const head = rows[0];
+        const ti = pick(head, ["제목", "title"]);
+        const bi = pick(head, ["내용", "본문", "설명", "body", "content", "text"]);
+        notices = rows.slice(1).map(r => ({
+          title: ((ti >= 0 ? r[ti] : r[0]) || "").trim(),
+          body: ((bi >= 0 ? r[bi] : r[1]) || "").trim()
+        }));
+      } else {
+        // 세로 형식(1열): A1 = 제목, A2(이하) = 내용 (한 개의 공지)
+        notices = [{
+          title: ((rows[0] && rows[0][0]) || "").trim(),
+          body: rows.slice(1).map(r => (r[0] || "")).join("\n").trim()
+        }];
+      }
+      notices = notices.filter(n => n.title || n.body);
+      this.setState({ notices });
+    } catch (e){
+      this.setState({ notices: [] });
+    }
+  }
+
+  flash(msg){
+    clearTimeout(this._toast);
+    this.setState({ toast: msg });
+    this._toast = setTimeout(() => this.setState({ toast: "" }), 1700);
+  }
+
+  toggleFav(s, e){
+    if (e) e.stopPropagation();
+    const favs = Object.assign({}, this.state.favs);
+    if (favs[s.id]) delete favs[s.id]; else favs[s.id] = 1;
+    this.setState({ favs });
+    try { localStorage.setItem("sh.songbook.favs", JSON.stringify(favs)); } catch (err) {}
+  }
+
+  scrollToEl(el, offset){
+    const sc = document.getElementById("list-scroll");
+    if (!el || !sc) return;
+    const y = el.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop - (offset || 20);
+    sc.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+  }
+
+  filtered(){
+    const st = this.state;
+    const q = st.q.trim().toLowerCase();
+    return st.songs.filter(s => {
+      if (st.favOnly && !st.favs[s.id]) return false;
+      if (st.genre !== "전체" && !(s.tags || []).includes(st.genre)) return false;
+      if (st.artist !== "전체" && s.artist !== st.artist) return false;
+      if (st.difficulty !== "전체" && s.diff !== st.difficulty) return false;
+      if (!q) return true;
+      return (s.title + " " + s.artist + " " + s.genre).toLowerCase().includes(q);
+    });
+  }
+
+  chip(active){
+    return active
+      ? { bg: "var(--accent)", fg: "var(--on-accent)", bd: "var(--accent)" }
+      : { bg: "var(--bg2)", fg: "var(--ink-2)", bd: "var(--line-2)" };
+  }
+
+  renderVals(){
+    const st = this.state;
+    const byTitle = (a, b) => a.title.localeCompare(b.title, "ko");
+    const num = s => parseInt(s.no, 10) || 0;
+    const sorted = this.filtered().slice().sort((a, b) => {
+      if (st.sort === "new") return num(b) - num(a) || byTitle(a, b);
+      if (st.sort === "old") return num(a) - num(b) || byTitle(a, b);
+      if (st.sort === "artist") return a.artist.localeCompare(b.artist, "ko") || byTitle(a, b);
+      if (st.sort === "fav") return ((st.favs[b.id] ? 1 : 0) - (st.favs[a.id] ? 1 : 0)) || byTitle(a, b);
+      return byTitle(a, b);
+    });
+
+    const diffColor = d => {
+      const v = (d || "").trim();
+      if (!v) return null;
+      if (/(어려|어렵|상|고음|hard|최상|헬|극)/i.test(v)) return ["#FF9E9E", "#2C0D0D"];
+      if (/(보통|중|normal|mid|중급)/i.test(v)) return ["#FFD97A", "#2A2006"];
+      if (/(쉬|하|easy|초|저)/i.test(v)) return ["#9FE8BD", "#0C2417"];
+      return null;
+    };
+    const deco = s => {
+      const fav = !!st.favs[s.id];
+      const dc = diffColor(s.diff);
+      const tagBadges = (s.tags || []).map(t => { const b = badgeOf(t); return { label: t, bg: b[0], fg: b[1] }; });
+      return Object.assign({}, s, {
+        picked: st.picked === s.id,
+        noArt: !s.art && this.props.showArt !== false,
+        meta: st.view !== "compact",
+        hasDiff: !!(s.diff || "").trim(),
+        diffLabel: diffStars(s.diff) || s.diff,
+        hasTags: tagBadges.length > 0,
+        hasChips: !!((s.tags && s.tags.length) || (s.diff || "").trim()),
+        tagBadges,
+        diffBg: dc ? dc[0] : "transparent",
+        diffFg: dc ? dc[1] : "var(--ink-2)",
+        diffBd: dc ? dc[0] : "var(--line-2)",
+        favBub: fav ? "var(--accent)" : "rgba(10,10,14,.5)",
+        favRowFg: fav ? "var(--accent)" : "var(--ink-3)",
+        starFill: fav ? "currentColor" : "none",
+        onFav: e => this.toggleFav(s, e)
+      });
+    };
+
+    let groups = [];
+    if (st.sort === "ka"){
+      const map = new Map();
+      sorted.forEach(s => {
+        const k = choOf(s.title);
+        if (!map.has(k)) map.set(k, []);
+        map.get(k).push(s);
+      });
+      groups = Array.from(map.entries()).map(([k, items]) => ({
+        key: k === "#" ? "etc" : k,
+        label: k === "A" ? "A–Z" : k,
+        n: items.length + "곡",
+        items: items.map(deco)
+      }));
+      const etcIdx = groups.findIndex(g => g.key === "etc");
+      if (etcIdx >= 0) groups.push(groups.splice(etcIdx, 1)[0]);
+    } else if (sorted.length){
+      const lbl = { new: "최신순", old: "오래된순", artist: "가수순", fav: "즐겨찾기순" }[st.sort] || "목록";
+      groups = [{ key: "all", label: lbl, n: sorted.length + "곡", items: sorted.map(deco) }];
+    }
+
+    const count = fn => st.songs.filter(fn).length;
+    const genreNames = Array.from(new Set(st.songs.reduce((a, s) => a.concat(s.tags || []), []))).sort((a, b) => a.localeCompare(b, "ko"));
+    const artistAll = Array.from(new Set(st.songs.map(s => s.artist).filter(Boolean)))
+      .map(v => ({ v, n: count(s => s.artist === v) }))
+      .sort((a, b) => b.n - a.n || a.v.localeCompare(b.v, "ko"));
+    const artistShown = st.artistsExpanded ? artistAll : artistAll.slice(0, 10);
+    const diffRank = v => /(쉬|하|easy|초|저)/i.test(v) ? 0 : /(보통|중|normal|mid|중급)/i.test(v) ? 1 : /(어려|어렵|상|고음|hard|최상|헬|극)/i.test(v) ? 2 : 3;
+    const diffNames = Array.from(new Set(st.songs.map(s => s.diff).filter(Boolean)))
+      .sort((a, b) => diffRank(a) - diffRank(b) || a.localeCompare(b, "ko"));
+
+    const mk = (items, cur, key, dots, labelFn) => [{ v: "전체", n: st.songs.length }].concat(items)
+      .map(o => Object.assign({
+        label: labelFn ? labelFn(o.v) : o.v, n: o.n,
+        dot: dots && o.v !== "전체" ? badgeOf(o.v)[0] : "",
+        on: () => this.setState({ [key]: o.v, picked: null })
+      }, this.chip(cur === o.v)));
+
+    const available = new Set(groups.map(g => g.label === "A–Z" ? "A" : g.key === "etc" ? "#" : g.key));
+    const choRail = RAIL.map(l => ({
+      label: l,
+      col: available.has(l) ? "var(--ink-2)" : "var(--line-2)",
+      on: () => this.scrollToEl(document.getElementById(l === "#" ? "cho-etc" : "cho-" + l), 8)
+    }));
+
+    const parts = [];
+    if (st.q) parts.push("“" + st.q + "”");
+    if (st.genre !== "전체") parts.push(st.genre);
+    if (st.artist !== "전체") parts.push(st.artist);
+    if (st.difficulty !== "전체") parts.push("난이도 " + st.difficulty);
+    if (st.favOnly) parts.push("즐겨찾기");
+    const dirty = st.q || st.genre !== "전체" || st.artist !== "전체" || st.difficulty !== "전체" || st.favOnly;
+
+    return {
+      loading: st.loading, groups, narrow: st.narrow, wide: !st.narrow,
+      empty: !st.loading && sorted.length === 0,
+      skeletons: [1,2,3,4,5,6,7,8].map(k => ({ k })),
+      totalStr: String(st.songs.length) + "곡",
+      avatar: st.avatar,
+      shownStr: sorted.length + "곡",
+      filterSummary: parts.length ? parts.join(" · ") : "전체 목록",
+      dirty: !!dirty,
+      q: st.q, hasQ: !!st.q,
+      onQ: e => this.setState({ q: e.target.value, picked: null }),
+      onClearQ: () => this.setState({ q: "" }),
+      countLine: dirty ? "총 " + st.songs.length + "곡 중 " + sorted.length + "곡" : "총 " + st.songs.length + "곡",
+      sortOptions: [
+        { v: "ka", label: "제목순 (가나다)" }, { v: "new", label: "최신순" }, { v: "old", label: "오래된순" },
+        { v: "artist", label: "가수순 (가나다)" }, { v: "fav", label: "즐겨찾기순" }
+      ],
+      sortVal: st.sort,
+      onSort: e => this.setState({ sort: e.target.value, picked: null }),
+      genres: mk(genreNames.map(v => ({ v, n: count(s => (s.tags || []).includes(v)) })), st.genre, "genre", true),
+      artists: mk(artistShown, st.artist, "artist", false),
+      diffs: mk(diffNames.map(v => ({ v, n: count(s => s.diff === v) })), st.difficulty, "difficulty", false, v => v === "전체" ? "전체" : (diffStars(v) || v)),
+      hasDiffs: diffNames.length > 0,
+      hasArtistMore: artistAll.length > 10,
+      artistMoreLabel: st.artistsExpanded ? "접기" : "전체 보기 (+" + (artistAll.length - 10) + ")",
+      onArtistMore: () => this.setState({ artistsExpanded: !st.artistsExpanded }),
+      favCount: Object.keys(st.favs).length,
+      onFavOnly: () => this.setState({ favOnly: !st.favOnly }),
+      favBg: st.favOnly ? "var(--accent)" : "var(--bg2)",
+      favFg: st.favOnly ? "var(--on-accent)" : "var(--ink-2)",
+      favBd: st.favOnly ? "var(--accent)" : "var(--line-2)",
+      isGrid: st.view !== "list",
+      isList: st.view === "list",
+      gridTemplate: st.view === "compact" ? "repeat(auto-fill,minmax(110px,1fr))" : "var(--gridcols)",
+      gridBg: st.view === "grid" ? "var(--accent)" : "transparent",
+      gridFg: st.view === "grid" ? "var(--on-accent)" : "var(--ink-3)",
+      compactBg: st.view === "compact" ? "var(--accent)" : "transparent",
+      compactFg: st.view === "compact" ? "var(--on-accent)" : "var(--ink-3)",
+      listBg: st.view === "list" ? "var(--accent)" : "transparent",
+      listFg: st.view === "list" ? "var(--on-accent)" : "var(--ink-3)",
+      onGridView: () => { this.setState({ view: "grid" }); try { localStorage.setItem("sh.songbook.view", "grid"); } catch (e) {} },
+      onCompactView: () => { this.setState({ view: "compact" }); try { localStorage.setItem("sh.songbook.view", "compact"); } catch (e) {} },
+      onListView: () => { this.setState({ view: "list" }); try { localStorage.setItem("sh.songbook.view", "list"); } catch (e) {} },
+      sheetOpen: st.narrow && st.filtersOpen,
+      filterBtnLabel: "필터",
+      filterBtnHint: dirty ? "●" : "",
+      onToggleFilters: () => this.setState({ filtersOpen: !st.filtersOpen }),
+      onReset: () => this.setState({ q: "", genre: "전체", artist: "전체", difficulty: "전체", favOnly: false, picked: null }),
+      choRail,
+      themeIcon: st.theme === "night" ? "☀" : "🌙",
+      onTheme: () => {
+        const t = st.theme === "night" ? "book" : "night";
+        this.setState({ theme: t }); this.applyTheme(t);
+        try { localStorage.setItem("sh.songbook.theme", t); } catch (e) {}
+      },
+      notices: ((st.notices && st.notices.length)
+        ? st.notices
+        : ((this.props.noticeBody || this.props.noticeTitle)
+            ? [{ title: this.props.noticeTitle || "공지", body: this.props.noticeBody || "" }]
+            : [])
+      ).map((n, i) => {
+        const hasBody = !!(n.body || "").trim();
+        return {
+          title: n.title || "공지",
+          body: n.body || "",
+          hasBody,
+          open: !!st.noticeOpen[i],
+          chev: st.noticeOpen[i] ? "닫기 ▲" : "펼치기 ▼",
+          onToggle: () => this.setState({ noticeOpen: Object.assign({}, st.noticeOpen, { [i]: !st.noticeOpen[i] }) })
+        };
+      }),
+      stop: e => e.stopPropagation(),
+      toast: st.toast,
+      sourceLine: st.note || (st.source === "sheet" ? "구글 시트에서 불러온 목록이에요." : "샘플 목록을 보여주는 중이에요."),
+      onRandom: () => { this.setState({ randomOpen: true }); this.roll(4); },
+      randomOpen: st.randomOpen,
+      onRandomClose: () => this.setState({ randomOpen: false }),
+      randomPicks: st.randomPicks.map(deco),
+      randomGenre: st.randomGenre,
+      randomGenreOptions: [{ v: "전체", label: "카테고리 전체" }].concat(genreNames.map(v => ({ v, label: v }))),
+      onRandomGenre: e => this.setState({ randomGenre: e.target.value }, () => this.roll(this.state.randomPicks.length === 1 ? 1 : 4)),
+      onRollOne: () => this.roll(1),
+      onRollMany: () => this.roll(4)
+    };
+  }
+}
+
+</script>
+</body>
+</html>

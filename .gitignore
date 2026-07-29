@@ -1,0 +1,7 @@
+# GitHub Pages에 불필요한 파일 (이 페이지가 참조하지 않음)
+uploads/
+assets/*
+!assets/profile
+!assets/profile/**
+image-slot.js
+.thumbnail
