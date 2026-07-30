@@ -360,7 +360,17 @@ button,input{font-family:inherit}
 <script type="text/x-dc" data-dc-script data-props="{&quot;sheetUrl&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;https://docs.google.com/spreadsheets/d/1HCxbJYVwQeZ65CQRLvzW5UnHdTuc76fJzmdsykTSoro/edit&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;데이터&quot;},&quot;sheetTab&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;노래&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;데이터&quot;},&quot;noticeTab&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;공지사항&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;데이터&quot;},&quot;requestCommand&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;!신청곡 {곡} - {가수}&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;데이터&quot;},&quot;noticeTitle&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;༺설홍이 노래책༻ 도네 안내&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;공지&quot;},&quot;noticeBody&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;200개 : 일반 노래 1곡\n300개 : 고음 노래 1곡\n1000개 : 애교&amp;매도 노래 1곡\n2000개 : 노래 숙제 1곡\n5000개 : 애교송 숙제\n✿✿✿✿✿✿✿✿✿✿✿✿\n300개 : 해금 연주 1곡\n3000개 : 해금연주 숙제 1곡\n✿✿✿✿✿✿✿✿✿✿✿✿\n일반 노래 추가 : 도전미션 200개 (잘 모르면 다시 돌려드려요!)\n해금 노래 추가 : 도전미션 300개\n애교 노래 추가 : 도전미션 1000개&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;공지&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#EE5A93&quot;,&quot;options&quot;:[&quot;#EE5A93&quot;,&quot;#7C5CFF&quot;,&quot;#3D9BFF&quot;,&quot;#FF6A4D&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;브랜드&quot;},&quot;defaultTheme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;night&quot;,&quot;book&quot;],&quot;default&quot;:&quot;night&quot;,&quot;tsType&quot;:&quot;'night'|'book'&quot;,&quot;section&quot;:&quot;브랜드&quot;},&quot;density&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;여유&quot;,&quot;보통&quot;,&quot;촘촘&quot;],&quot;default&quot;:&quot;보통&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;레이아웃&quot;},&quot;showArt&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;레이아웃&quot;}}">
 const SHEET = "https://docs.google.com/spreadsheets/d/1HCxbJYVwQeZ65CQRLvzW5UnHdTuc76fJzmdsykTSoro/edit";
 
-const AVATARS = ["./assets/profile/profile.png"];
+// assets/profile 폴더의 이미지를 자동 인식해 새로고침마다 랜덤으로 보여준다.
+// 정적 호스팅이라 폴더 목록을 직접 못 읽으므로 GitHub Contents API로 파일명을 가져오고,
+// 실패하면(로컬 실행·오프라인·API 제한) 아래 기본 목록으로 폴백한다.
+const PROFILE_DIR = "./assets/profile/";
+const PROFILE_API = "https://api.github.com/repos/d-hue-lh/lighthoongSongBook/contents/assets/profile?ref=main";
+const IMG_RE = /\.(gif|png|jpe?g|webp|avif|svg)$/i;
+const AVATARS = ["./assets/profile/profile.gif", "./assets/profile/profile2.gif", "./assets/profile/profile.png"];
+
+function pickOne(list){
+  return list[Math.floor(Math.random() * list.length)];
+}
 
 const SAMPLE = [
 "가시나무|시인과 촌장|발라드","강남스타일|싸이|댄스","걱정말아요 그대|들국화|가요",
@@ -449,7 +459,7 @@ class Component extends DCLogic {
     sort: "ka", favs: {}, theme: "night", view: "grid", toast: "", picked: null,
     narrow: false, filtersOpen: false, noticeOpen: {}, notices: [],
     artistsExpanded: false, randomOpen: false, randomPicks: [], randomGenre: "전체",
-    avatar: AVATARS[Math.floor(Math.random() * AVATARS.length)]
+    avatar: pickOne(AVATARS)
   };
 
   roll(n){
@@ -480,6 +490,27 @@ class Component extends DCLogic {
     window.addEventListener("resize", this.onResize);
     this.onResize();
     this.load();
+    this.loadAvatars();
+  }
+
+  // 폴더 목록은 탭 세션 동안 캐시하고, 랜덤 선택은 로드할 때마다 다시 한다.
+  async loadAvatars(){
+    try {
+      let list = null;
+      try { list = JSON.parse(sessionStorage.getItem("songbook.avatars") || "null"); } catch (e){}
+      if (!Array.isArray(list) || !list.length){
+        const res = await fetch(PROFILE_API);
+        if (!res.ok) throw new Error("http " + res.status);
+        list = (await res.json())
+          .filter(f => f.type === "file" && IMG_RE.test(f.name))
+          .map(f => PROFILE_DIR + f.name);
+        if (!list.length) throw new Error("no images");
+        try { sessionStorage.setItem("songbook.avatars", JSON.stringify(list)); } catch (e){}
+      }
+      this.setState({ avatar: pickOne(list) });
+    } catch (e){
+      // 기본 목록에서 이미 랜덤으로 골라 둔 상태라 그대로 둔다.
+    }
   }
 
   componentDidUpdate(prev){
