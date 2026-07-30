@@ -70,6 +70,10 @@ color-scheme:light;
   #tool-views{flex:none !important;padding:2px !important}
   #tool-views button{width:31px !important;height:28px !important}
   #tool-sort{flex:1 1 0 !important;min-width:0 !important;width:0 !important;min-height:36px !important;padding:0 6px !important;font-size:12px !important}
+  /* 공지 제목은 잘라내지 말고 여러 줄로 다 보여준다. keep-all 로 한글 단어 중간이 끊기지 않게. */
+  [data-notice-title]{white-space:normal !important;overflow:visible !important;text-overflow:clip !important;word-break:keep-all;overflow-wrap:break-word}
+  [data-notice-btn]{align-items:flex-start !important}
+  [data-notice-btn] > span:first-child{margin-top:1px}
 }
 *{box-sizing:border-box}
 body{margin:0;height:100dvh;overflow:hidden;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans KR',system-ui,sans-serif;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
@@ -198,9 +202,9 @@ button,input{font-family:inherit}
 
   <sc-for list="{{ notices }}" as="nt" hint-placeholder-count="0">
     <div style="margin:16px 0 4px;border:1px solid var(--line-2);border-radius:12px;background:var(--bg2);overflow:hidden">
-      <button onClick="{{ nt.onToggle }}" style="width:100%;display:flex;align-items:center;gap:10px;padding:12px 14px;border:none;background:transparent;cursor:pointer;text-align:left">
+      <button data-notice-btn onClick="{{ nt.onToggle }}" style="width:100%;display:flex;align-items:center;gap:10px;padding:12px 14px;border:none;background:transparent;cursor:pointer;text-align:left">
         <span style="flex:none;display:inline-grid;place-items:center;height:23px;padding:0 10px;border-radius:99px;background:var(--accent);color:var(--on-accent);font:700 11px/1 'IBM Plex Sans KR';letter-spacing:.04em">공지</span>
-        <span style="flex:1;min-width:0;font:700 13px/1.35 'IBM Plex Sans KR';color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ nt.title }}</span>
+        <span data-notice-title style="flex:1;min-width:0;font:700 13px/1.35 'IBM Plex Sans KR';color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ nt.title }}</span>
         <sc-if value="{{ nt.hasBody }}"><span style="flex:none;font:600 11.5px/1 'IBM Plex Mono',monospace;color:var(--ink-3)">{{ nt.chev }}</span></sc-if>
       </button>
       <sc-if value="{{ nt.open }}">
