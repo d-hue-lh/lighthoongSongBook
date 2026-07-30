@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <script src="./support.js"></script>
 </head>
 <body>
@@ -20,8 +20,8 @@
 --accent:#EE5A93;--on-accent:#FFFFFF;--gold:#FFC94D;
 --grid-cols:296px minmax(0,1fr);--grid-rows:minmax(0,1fr);--gap:0px;--pad:24px;--frame:0px;--maxw-pad:34px;
 --chips-wrap:wrap;--chips-ovf:visible;--btnrow:1fr 1fr;
---gridcols:repeat(auto-fill,minmax(150px,1fr));--rowpad:11px;--art:52px;--maxw:1560px;
---rail-h:100%;--rail-ovf:auto;--rail-max:none;--aside-br:1px;--aside-bb:0px;--main-pad:28px;--main-pad-r:28px;--cho-disp:flex;
+--gridcols:repeat(auto-fill,minmax(150px,1fr));--gridcols-compact:repeat(auto-fill,minmax(110px,1fr));--card-gap:16px 14px;--rowpad:11px;--art:52px;--maxw:1560px;
+--rail-h:100%;--rail-ovf:auto;--rail-max:none;--aside-br:1px;--aside-bb:0px;--main-pad:28px;--main-pad-r:28px;--cho-disp:flex;--cho-top:0px;--pad-top:var(--pad);
 color-scheme:dark;
 }
 :root[data-theme="book"]{
@@ -31,7 +31,21 @@ color-scheme:dark;
 --accent:#E14B85;--on-accent:#FFFFFF;--gold:#DE9A00;
 color-scheme:light;
 }
-@media (max-width:960px){:root{--grid-cols:minmax(0,1fr);--grid-rows:minmax(0,auto) minmax(200px,1fr);--pad:16px;--btnrow:minmax(0,1.3fr) 1fr 1fr;--gridcols:repeat(auto-fill,minmax(136px,1fr));--art:48px;--rail-h:auto;--rail-ovf:auto;--rail-max:38dvh;--aside-br:0px;--aside-bb:1px;--main-pad:16px;--main-pad-r:44px;--aside-pad-r:44px;--cho-disp:flex;--maxw-pad:0px}}
+/* 모바일: 초성 레일을 숨기고(--cho-disp:none) 그만큼 오른쪽 여백을 되돌린 뒤,
+   카드를 한 줄에 3개로 고정한다. 상단은 펀치홀/노치를 피해 안전영역만큼 더 띄운다. */
+@media (max-width:960px){:root{--grid-cols:minmax(0,1fr);--grid-rows:minmax(0,auto) minmax(200px,1fr);--pad:16px;--pad-top:calc(env(safe-area-inset-top,0px) + 26px);--btnrow:minmax(0,1.3fr) 1fr 1fr;--gridcols:repeat(3,minmax(0,1fr));--gridcols-compact:repeat(4,minmax(0,1fr));--card-gap:14px 9px;--art:48px;--rail-h:auto;--rail-ovf:auto;--rail-max:38dvh;--aside-br:0px;--aside-bb:1px;--main-pad:16px;--main-pad-r:16px;--aside-pad-r:16px;--cho-disp:none;--maxw-pad:0px}}
+/* 모바일 툴바: 곡 수·필터 요약을 윗줄로 밀어내고(basis 100%)
+   설마카세 · 보기방식 · 정렬을 한 줄에 모은다. 인라인 스타일을 덮어야 해서 !important. */
+@media (max-width:960px){
+  #toolbar{gap:8px !important;padding-top:10px !important;padding-bottom:9px !important}
+  #tool-meta{flex:1 1 100% !important;margin-right:0 !important}
+  #tool-sushi{min-height:36px !important;padding:0 10px !important;gap:5px !important;font-size:12px !important;flex:none !important}
+  #tool-sushi span{font-size:13px !important}
+  #tool-reset{min-height:36px !important;padding:0 9px !important;font-size:11.5px !important}
+  #tool-views{flex:none !important;padding:2px !important}
+  #tool-views button{width:31px !important;height:28px !important}
+  #tool-sort{flex:1 1 0 !important;min-width:0 !important;width:0 !important;min-height:36px !important;padding:0 6px !important;font-size:12px !important}
+}
 *{box-sizing:border-box}
 body{margin:0;height:100dvh;overflow:hidden;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans KR',system-ui,sans-serif;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
 a{color:var(--accent)}
@@ -50,7 +64,7 @@ button,input{font-family:inherit}
 
 <div style="height:100dvh;max-width:calc(var(--maxw) + var(--maxw-pad,0px));margin:0 auto;padding-right:var(--maxw-pad,0px);display:grid;grid-template-columns:var(--grid-cols);grid-template-rows:var(--grid-rows)">
 
-<aside data-hidescroll="1" style="height:var(--rail-h);max-height:var(--rail-max);min-height:0;overflow-y:var(--rail-ovf);overflow-x:hidden;border-right:var(--aside-br) solid var(--line);border-bottom:var(--aside-bb) solid var(--line);display:grid;grid-template-columns:minmax(0,1fr);grid-auto-rows:min-content;align-content:start;gap:18px;padding:var(--pad) var(--aside-pad-r,var(--pad)) var(--pad) var(--pad);z-index:30">
+<aside data-hidescroll="1" style="height:var(--rail-h);max-height:var(--rail-max);min-height:0;overflow-y:var(--rail-ovf);overflow-x:hidden;border-right:var(--aside-br) solid var(--line);border-bottom:var(--aside-bb) solid var(--line);display:grid;grid-template-columns:minmax(0,1fr);grid-auto-rows:min-content;align-content:start;gap:18px;padding:var(--pad-top,var(--pad)) var(--aside-pad-r,var(--pad)) var(--pad) var(--pad);z-index:30">
 
   <div style="display:flex;align-items:center;gap:12px">
     <div style="width:44px;height:44px;flex:none;border-radius:50%;overflow:hidden;background:linear-gradient(140deg,var(--accent),#8E5AEE);display:grid;place-items:center">
@@ -129,17 +143,17 @@ button,input{font-family:inherit}
 </aside>
 
 <main style="min-width:0;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr)">
-  <div style="padding:13px var(--main-pad-r) 11px var(--main-pad);border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px">
-    <div style="display:flex;align-items:baseline;gap:10px;min-width:0;margin-right:auto">
+  <div id="toolbar" style="padding:13px var(--main-pad-r) 11px var(--main-pad);border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px">
+    <div id="tool-meta" style="display:flex;align-items:baseline;gap:10px;min-width:0;margin-right:auto">
       <span style="font:700 15.5px/1.2 'IBM Plex Sans KR';color:var(--ink);letter-spacing:-.01em;white-space:nowrap">{{ countLine }}</span>
       <span style="font:500 12.5px/1.3 'IBM Plex Sans KR';color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ filterSummary }}</span>
     </div>
-    <sc-if value="{{ dirty }}"><button onClick="{{ onReset }}" style="flex:none;min-height:36px;padding:0 12px;border:1px solid var(--line-2);border-radius:99px;background:transparent;color:var(--ink-2);font:600 12px/1 'IBM Plex Sans KR';cursor:pointer" style-hover="border-color:var(--accent);color:var(--accent)">초기화</button></sc-if>
-    <button onClick="{{ onRandom }}" style="display:flex;align-items:center;gap:7px;min-height:38px;padding:0 13px;border:none;border-radius:10px;background:var(--accent);color:var(--on-accent);font:700 12.5px/1 'IBM Plex Sans KR';cursor:pointer" style-hover="filter:brightness(1.1)" style-active="transform:translateY(1px)">
+    <sc-if value="{{ dirty }}"><button id="tool-reset" onClick="{{ onReset }}" style="flex:none;min-height:36px;padding:0 12px;border:1px solid var(--line-2);border-radius:99px;background:transparent;color:var(--ink-2);font:600 12px/1 'IBM Plex Sans KR';cursor:pointer" style-hover="border-color:var(--accent);color:var(--accent)">초기화</button></sc-if>
+    <button id="tool-sushi" onClick="{{ onRandom }}" style="display:flex;align-items:center;gap:7px;min-height:38px;padding:0 13px;border:none;border-radius:10px;background:var(--accent);color:var(--on-accent);font:700 12.5px/1 'IBM Plex Sans KR';cursor:pointer" style-hover="filter:brightness(1.1)" style-active="transform:translateY(1px)">
       <span style="font-size:15px;line-height:1">🍣</span>
       설마카세
     </button>
-    <div style="display:flex;gap:2px;padding:3px;border:1px solid var(--line-2);border-radius:10px;background:var(--bg2)">
+    <div id="tool-views" style="display:flex;gap:2px;padding:3px;border:1px solid var(--line-2);border-radius:10px;background:var(--bg2)">
       <button onClick="{{ onGridView }}" title="앨범형 보기" aria-label="앨범형 보기" style="width:35px;height:30px;display:grid;place-items:center;border:none;border-radius:7px;background:{{ gridBg }};color:{{ gridFg }};cursor:pointer">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><rect x="3.5" y="3.5" width="7" height="7" rx="1.8"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="1.8"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="1.8"></rect><rect x="13.5" y="13.5" width="7" height="7" rx="1.8"></rect></svg>
       </button>
@@ -150,7 +164,7 @@ button,input{font-family:inherit}
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="3" width="5" height="5" rx="1.2"></rect><rect x="9.5" y="3" width="5" height="5" rx="1.2"></rect><rect x="16" y="3" width="5" height="5" rx="1.2"></rect><rect x="3" y="9.5" width="5" height="5" rx="1.2"></rect><rect x="9.5" y="9.5" width="5" height="5" rx="1.2"></rect><rect x="16" y="9.5" width="5" height="5" rx="1.2"></rect><rect x="3" y="16" width="5" height="5" rx="1.2"></rect><rect x="9.5" y="16" width="5" height="5" rx="1.2"></rect><rect x="16" y="16" width="5" height="5" rx="1.2"></rect></svg>
       </button>
     </div>
-    <select value="{{ sortVal }}" onChange="{{ onSort }}" aria-label="정렬 기준" style="min-height:38px;padding:0 10px;border:1px solid var(--line-2);border-radius:10px;background:var(--bg2);color:var(--ink);font:600 12.5px/1 'IBM Plex Sans KR';outline:none;cursor:pointer">
+    <select id="tool-sort" value="{{ sortVal }}" onChange="{{ onSort }}" aria-label="정렬 기준" style="min-height:38px;padding:0 10px;border:1px solid var(--line-2);border-radius:10px;background:var(--bg2);color:var(--ink);font:600 12.5px/1 'IBM Plex Sans KR';outline:none;cursor:pointer">
       <sc-for list="{{ sortOptions }}" as="o" hint-placeholder-count="0"><option value="{{ o.v }}">{{ o.label }}</option></sc-for>
     </select>
   </div>
@@ -173,7 +187,7 @@ button,input{font-family:inherit}
   </sc-for>
 
   <sc-if value="{{ loading }}" hint-placeholder-val="{{ true }}">
-    <div style="display:grid;grid-template-columns:var(--gridcols);gap:14px;padding-top:18px">
+    <div style="display:grid;grid-template-columns:var(--gridcols);gap:var(--card-gap);padding-top:18px">
       <sc-for list="{{ skeletons }}" as="k" hint-placeholder-count="8">
         <div><div style="aspect-ratio:1;border-radius:11px;background:var(--bg3);animation:flick 1.4s ease-in-out infinite"></div><div style="margin-top:9px;height:13px;width:80%;border-radius:5px;background:var(--bg3);animation:flick 1.4s ease-in-out infinite"></div><div style="margin-top:6px;height:11px;width:50%;border-radius:5px;background:var(--bg3);animation:flick 1.4s ease-in-out infinite"></div></div>
       </sc-for>
@@ -189,7 +203,7 @@ button,input{font-family:inherit}
       </div>
 
       <sc-if value="{{ isGrid }}" hint-placeholder-val="{{ true }}">
-      <div style="display:grid;grid-template-columns:{{ gridTemplate }};gap:16px 14px;padding:4px 0 20px">
+      <div style="display:grid;grid-template-columns:{{ gridTemplate }};gap:var(--card-gap);padding:4px 0 20px">
         <sc-for list="{{ g.items }}" as="s" hint-placeholder-count="0">
           <div id="song-{{ s.id }}" style="position:relative;scroll-margin-top:60px">
             <div style="position:relative;aspect-ratio:1;border-radius:11px;overflow:hidden;background:var(--bg3);box-shadow:0 1px 0 rgba(255,255,255,.04) inset">
@@ -251,7 +265,7 @@ button,input{font-family:inherit}
 </main>
 </div>
 
-<nav data-hidescroll="1" style="position:fixed;right:4px;top:50%;transform:translateY(-50%);z-index:45;display:var(--cho-disp);flex-direction:column;gap:1px;padding:6px 3px;border-radius:99px;background:var(--bg2);border:1px solid var(--line)">
+<nav data-hidescroll="1" style="position:fixed;right:4px;top:var(--cho-top,0px);bottom:0;margin:auto 0;height:max-content;max-height:calc(100dvh - var(--cho-top,0px) - 12px);overflow-y:auto;z-index:45;display:var(--cho-disp);flex-direction:column;gap:1px;padding:6px 3px;border-radius:99px;background:var(--bg2);border:1px solid var(--line);box-shadow:0 4px 18px rgba(0,0,0,.35)">
   <sc-for list="{{ choRail }}" as="c" hint-placeholder-count="16">
     <button onClick="{{ c.on }}" style="width:25px;height:21px;display:grid;place-items:center;border:none;border-radius:7px;background:transparent;color:{{ c.col }};font:600 11px/1 'IBM Plex Sans KR';cursor:pointer" style-hover="background:var(--accent);color:var(--on-accent)">{{ c.label }}</button>
   </sc-for>
@@ -767,9 +781,13 @@ class Component extends DCLogic {
       onQ: e => this.setState({ q: e.target.value, picked: null }),
       onClearQ: () => this.setState({ q: "" }),
       countLine: dirty ? "총 " + st.songs.length + "곡 중 " + sorted.length + "곡" : "총 " + st.songs.length + "곡",
+      // 모바일은 한 줄에 같이 놓이므로 라벨을 줄여 셀렉트 폭을 아낀다.
       sortOptions: [
-        { v: "ka", label: "제목순 (가나다)" }, { v: "new", label: "최신순" }, { v: "old", label: "오래된순" },
-        { v: "artist", label: "가수순 (가나다)" }, { v: "fav", label: "즐겨찾기순" }
+        { v: "ka", label: st.narrow ? "제목순" : "제목순 (가나다)" },
+        { v: "new", label: "최신순" },
+        { v: "old", label: "오래된순" },
+        { v: "artist", label: st.narrow ? "가수순" : "가수순 (가나다)" },
+        { v: "fav", label: st.narrow ? "즐겨찾기" : "즐겨찾기순" }
       ],
       sortVal: st.sort,
       onSort: e => this.setState({ sort: e.target.value, picked: null }),
@@ -787,7 +805,7 @@ class Component extends DCLogic {
       favBd: st.favOnly ? "var(--accent)" : "var(--line-2)",
       isGrid: st.view !== "list",
       isList: st.view === "list",
-      gridTemplate: st.view === "compact" ? "repeat(auto-fill,minmax(110px,1fr))" : "var(--gridcols)",
+      gridTemplate: st.view === "compact" ? "var(--gridcols-compact)" : "var(--gridcols)",
       gridBg: st.view === "grid" ? "var(--accent)" : "transparent",
       gridFg: st.view === "grid" ? "var(--on-accent)" : "var(--ink-3)",
       compactBg: st.view === "compact" ? "var(--accent)" : "transparent",
