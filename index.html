@@ -88,6 +88,20 @@ button,input{font-family:inherit}
 #list-scroll::-webkit-scrollbar{width:9px}
 #list-scroll::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:99px}
 #list-scroll::-webkit-scrollbar-track{background:transparent}
+/* 모바일에서 목록을 아래로 당기면 브라우저의 '당겨서 새로고침'이 스크롤을 가로채간다.
+   overscroll-behavior-y 로 스크롤이 문서까지 전파되지 않게 막는다.
+   x축은 건드리지 않아 브라우저의 뒤로가기 스와이프 제스처는 그대로 유지된다. */
+html,body{overscroll-behavior-y:none}
+#list-scroll{overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch}
+[data-hidescroll]{overscroll-behavior-y:contain}
+/* 직접 만든 '당겨서 새로고침' 인디케이터 (브라우저 기본 동작 대신) */
+[data-ptr]{position:fixed;left:50%;z-index:60;display:grid;place-items:center;
+  width:34px;height:34px;border-radius:50%;background:var(--bg2);
+  border:1px solid var(--line-2);color:var(--ink-3);font:700 16px/1 'IBM Plex Sans KR';
+  opacity:0;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+[data-ptr] span{display:block;transition:transform .18s ease}
+[data-ptr][data-busy] span{animation:ptrspin .7s linear infinite}
+@keyframes ptrspin{to{transform:rotate(360deg)}}
 </style>
 </helmet>
 
@@ -534,6 +548,7 @@ class Component extends DCLogic {
     this.onResize();
     this.load();
     this.loadAvatars();
+    this.setupPull();
   }
 
   // 폴더 목록은 탭 세션 동안 캐시하고, 랜덤 선택은 로드할 때마다 다시 한다.
@@ -556,6 +571,101 @@ class Component extends DCLogic {
     }
   }
 
+  // 브라우저 기본 '당겨서 새로고침'은 CSS(overscroll-behavior)로 꺼두고,
+  // 목록 맨 위에서 확실히 당겼을 때만 시트를 다시 불러온다.
+  setupPull(){
+    const PULL_RATIO = 0.45;   // 손가락 이동 대비 인디케이터 이동 (저항감)
+    const TRIGGER = 64;        // 이만큼 내려와야 발동 (손가락으론 약 142px)
+    const MAX = 96;
+
+    const boot = () => {
+      const sc = document.getElementById("list-scroll");
+      if (!sc) return requestAnimationFrame(boot);
+      if (this._ptr) return;
+
+      const ind = document.createElement("div");
+      ind.setAttribute("data-ptr", "");
+      const icon = document.createElement("span");
+      icon.textContent = "↓";
+      ind.appendChild(icon);
+      document.body.appendChild(ind);
+
+      let startY = 0, pull = 0, active = false, busy = false;
+
+      const draw = (px, animate) => {
+        pull = px;
+        ind.style.transition = animate ? "opacity .2s ease, transform .2s ease" : "";
+        ind.style.opacity = String(Math.min(1, px / (TRIGGER * 0.7)));
+        ind.style.transform = "translateX(-50%) translateY(" + px + "px)";
+        const ready = px >= TRIGGER;
+        icon.style.transform = ready ? "rotate(180deg)" : "rotate(0deg)";
+        ind.style.borderColor = ready ? "var(--accent)" : "var(--line-2)";
+        ind.style.color = ready ? "var(--accent)" : "var(--ink-3)";
+      };
+
+      const onStart = e => {
+        if (busy || e.touches.length !== 1 || sc.scrollTop > 0){ active = false; return; }
+        active = true;
+        startY = e.touches[0].clientY;
+        // 인디케이터를 목록 상단에 맞춘다 (헤더 높이는 화면마다 다르므로 실측)
+        ind.style.top = (sc.getBoundingClientRect().top - 34) + "px";
+      };
+
+      const onMove = e => {
+        if (!active || busy) return;
+        const dy = e.touches[0].clientY - startY;
+        // 위로 올리거나 목록이 이미 스크롤됐으면 당김 취소
+        if (dy <= 0 || sc.scrollTop > 0){
+          if (pull) draw(0, false);
+          active = false;
+          return;
+        }
+        const next = Math.min(MAX, dy * PULL_RATIO);
+        if (pull < TRIGGER && next >= TRIGGER && navigator.vibrate) navigator.vibrate(12);
+        draw(next, false);
+      };
+
+      const onEnd = () => {
+        if (!active || busy) return;
+        active = false;
+        if (pull < TRIGGER){ draw(0, true); return; }
+
+        busy = true;
+        ind.setAttribute("data-busy", "");
+        icon.textContent = "↻";
+        icon.style.transform = "";
+        draw(TRIGGER, true);
+
+        Promise.resolve(this.load()).catch(() => {}).then(() => {
+          busy = false;
+          ind.removeAttribute("data-busy");
+          icon.textContent = "↓";
+          draw(0, true);
+          this.flash(this.state.source === "sheet" ? "목록을 새로 불러왔어요" : "불러오지 못했어요");
+        });
+      };
+
+      sc.addEventListener("touchstart", onStart, { passive: true });
+      sc.addEventListener("touchmove", onMove, { passive: true });
+      sc.addEventListener("touchend", onEnd, { passive: true });
+      sc.addEventListener("touchcancel", onEnd, { passive: true });
+
+      this._ptr = { sc, ind, onStart, onMove, onEnd };
+    };
+    boot();
+  }
+
+  teardownPull(){
+    const p = this._ptr;
+    if (!p) return;
+    p.sc.removeEventListener("touchstart", p.onStart);
+    p.sc.removeEventListener("touchmove", p.onMove);
+    p.sc.removeEventListener("touchend", p.onEnd);
+    p.sc.removeEventListener("touchcancel", p.onEnd);
+    if (p.ind.parentNode) p.ind.parentNode.removeChild(p.ind);
+    this._ptr = null;
+  }
+
   componentDidUpdate(prev){
     if (prev.sheetUrl !== this.props.sheetUrl || prev.sheetTab !== this.props.sheetTab || prev.noticeTab !== this.props.noticeTab) this.load();
     this.applyVars();
@@ -563,6 +673,7 @@ class Component extends DCLogic {
 
   componentWillUnmount(){
     window.removeEventListener("resize", this.onResize);
+    this.teardownPull();
     clearTimeout(this._toast); clearInterval(this._roll);
   }
 
